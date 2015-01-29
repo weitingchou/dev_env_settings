@@ -192,9 +192,9 @@ NeoBundleCheck
 "===============================================================================
 "=== plugin: syntastic
 "===============================================================================
-"The plugin can combine external linter so you have to install the linter for the 
-"language you want to be checked. For node.js you can install:
-"   npm install -g jshint
+"The plugin can invoke external linter to check your code. To see which external
+"linters are supported, look at https://github.com/scrooloose/syntastic/wiki/Syntax-Checkers
+"Note that aliases do not work; the acutal executables must be available in your $PATH.
 "
 "This does what it says on the tin. It will check your file on open too, not just on save.
 "You might not want this, so just leave it out if you don't.
