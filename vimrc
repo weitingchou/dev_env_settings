@@ -147,6 +147,7 @@ call neobundle#begin(expand('~/.vim/bundle/'))
 " Let NeoBundle manage NeoBundle
 NeoBundleFetch 'Shougo/neobundle.vim'
 NeoBundle 'Shougo/vimproc.vim'
+NeoBundle 'https://github.com/vim-scripts/genutils.git'
 NeoBundle 'https://github.com/scrooloose/nerdtree.git'
 NeoBundle 'wombat256.vim'
 NeoBundle 'https://github.com/JimiSmith/vim-taglist.git'
