@@ -1,8 +1,8 @@
 "===============================================================================
 "=== general Vim settings
 "===============================================================================
-"colorscheme darkblue
-"colorscheme torte      "good for demo
+
+let mapleader = ","     " Map <Leader> to , key
 
 set nocompatible        "do not allow vim compatible with vi mode
 set hidden              "allow you switch files without saving them
@@ -54,8 +54,7 @@ autocmd FileType make setlocal noexpandtab tabstop=4
 "set listchars=tab:>-,trail:-
 
 
-"== 下面出現一列 bar ==
-set laststatus=2        "ls: The value of this option influences when the last window will have a status
+set laststatus=2        " The value of this option influences when the last window will have a status
                         "    line:
                         "    0: never
                         "    1: only if there are at least two windows
@@ -127,8 +126,6 @@ set winminheight=1
 noremap <C-J> <C-W>j<C-W>_
 noremap <C-K> <C-W>k<C-W>_
 
-"== To resize the window to height 12, ':res 12' ==
-
 "===============================================================================
 "=== NeoBundle
 "===============================================================================
@@ -145,10 +142,226 @@ if has('vim_starting')
 endif
 call neobundle#begin(expand('~/.vim/bundle/'))
 " Let NeoBundle manage NeoBundle
-NeoBundleFetch 'Shougo/neobundle.vim'
-NeoBundle 'Shougo/vimproc.vim'
+NeoBundleFetch 'Shougo/neobundle.vim', {'rev': 'master'}
+
+" Recommended to install
+NeoBundleDepends 'Shougo/vimproc.vim', {
+    \ 'build': {
+        \ 'mac': 'make -f make_mac.mak',
+        \ 'unix': 'make -f make_unix.mak',
+        \ 'cygwin': 'make -f make_cygwin.mak',
+        \ 'windows': '"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\nmake.exe" make_msvc32.mak',
+    \ },
+\ }
+
+" Best git interface for Vim
+NeoBundle 'tpope/vim-fugitive' "{{{
+    nnoremap <silent> <leader>gs :Gstatus<CR>
+    nnoremap <silent> <leader>gd :Gdiff<CR>
+    nnoremap <silent> <leader>gc :Gcommit<CR>
+    nnoremap <silent> <leader>gb :Gblame<CR>
+    nnoremap          <leader>ge :Gedit<space>
+    nnoremap <silent> <leader>gl :silent Glog<CR>:copen<CR>
+    nnoremap <silent> <leader>gp :Git push<CR>
+    nnoremap <silent> <leader>gw :Gwrite<CR>
+    nnoremap <silent> <leader>gr :Gremove<CR>
+    autocmd FileType gitcommit nmap <buffer> U :Git checkout -- <C-r><C-g><CR>
+    autocmd BufReadPost fugitive://* set bufhidden=delete
+"}}}
+
+" A buffer/file/mru/tag explorer with fuzzy text matching
+NeoBundle 'kien/ctrlp.vim' "{{{
+    let g:ctrlp_clear_cache_on_exit=1
+    let g:ctrlp_max_height=40
+    let g:ctrlp_show_hidden=0
+    let g:ctrlp_follow_symlinks=1
+    let g:ctrlp_working_path_mode=0
+    let g:ctrlp_max_files=60000
+    let g:ctrlp_cache_dir='~/.vim/.cache/ctrlp'
+"}}}
+
+
+" These two togather make the absolute best autocomplete package around
+NeoBundle 'Valloric/YouCompleteMe' "{{{
+    let g:ycm_autoclose_preview_window_after_completion = 1
+    let g:ycm_autoclose_preview_window_after_insertion = 1
+"}}}
+NeoBundle 'scrooloose/syntastic' "{{{
+    "The plugin can invoke external linter to check your code. To see which external
+    "linters are supported, look at https://github.com/scrooloose/syntastic/wiki/Syntax-Checkers
+    "Note that aliases do not work; the acutal executables must be available in your $PATH.
+    
+    "This does what it says on the tin. It will check your file on open too, not just on save.
+    "You might not want this, so just leave it out if you don't.
+    let g:syntastic_check_on_open=1
+
+    let g:syntastic_error_symbol = '✗'
+    let g:syntastic_style_error_symbol = '✠'
+    let g:syntastic_warning_symbol = '∆'
+    let g:syntastic_style_warning_symbol = '≈'
+    let g:syntastic_enable_signs=0
+    nnoremap <silent> <Leader>e :SyntasticCheck<cr>:silent! Errors<cr>
+    vnoremap <silent> <Leader>e :SyntasticCheck<cr>:silent! Errors<cr>
+    nnoremap <silent> <leader>lc :lclose<cr>
+    nnoremap <silent> <leader>lo :lopen<cr>
+"}}}
+
+" Solarized color scheme for Vim
+NeoBundle 'altercation/vim-colors-solarized' "{{{
+    set background=dark
+    set t_Co=16
+    if has('gui_running')
+        " I like the lower contrast for list characters.  But in a terminal
+        " this makes them completely invisible and causes the cursor to
+        " disappear.
+        let g:solarized_visibility="low" "Specifies contrast of invisibles.
+    endif
+    colorscheme solarized
+    highlight SignColumn guibg=#002b36
+"}}}
+
+"== Auto-completion for quotes, parens, brackets, etc ==
+NeoBundle 'Raimondi/delimitMate' "{{{
+    "to split the current line
+    imap <C-c> <CR><Esc>O
+
+    let delimitMate_expand_cr          = 1
+    let delimitMate_expand_space       = 1
+    let delimitMate_balance_matchpairs = 1
+    let delimitMate_jump_expansion     = 1
+"}}}
+
+"== For Javascript ==
+NeoBundle 'jelera/vim-javascript-syntax'
+NeoBundle 'pangloss/vim-javascript' "{{{
+    if has('conceal')
+        let g:javascript_conceal=1
+        autocmd FileType javascript set conceallevel=2 concealcursor=n
+    endif
+"}}}
+NeoBundle 'nathanaelkane/vim-indent-guides'
+NeoBundle 'marijnh/tern_for_vim' "{{{
+    " need to install tern first (npm install -g tern)
+    augroup Tern
+        autocmd!
+        autocmd FileType javascript nnoremap <buffer> <silent> <leader>td :TernDef<cr>
+        autocmd FileType javascript nnoremap <buffer> <silent> <leader>tD :TernDefSplit<cr>
+        autocmd FileType javascript nnoremap <buffer> <silent> <leader>tr :TernRefs<cr>
+        autocmd FileType javascript nnoremap <buffer> <silent> <leader>tc :TernRename<cr>
+    augroup END
+"}}}
+
+NeoBundle 'https://github.com/scrooloose/nerdtree.git' "{{{
+    let NERDTreeShowHidden=1
+    let NERDTreeQuitOnOpen=0
+    let NERDTreeShowLineNumbers=1
+    let NERDTreeChDirMode=0
+    let NERDTreeShowBookmarks=1
+    let NERDTreeIgnore=['\.o$', '\.dep$', '\.gen$', '\.hpp$', '\.h$', '\.git', '\.hg']
+    let NERDTreeBookmarksFile='~/.vim/.cache/NERDTreeBookmarks'
+    nnoremap <silent> <leader>d :NERDTreeToggle<CR>
+    nnoremap <silent> <leader>f :NERDTreeFind<CR>
+"}}}
+
+NeoBundle 'bling/vim-airline' "{{{
+    if fontdetect#hasFontFamily('Ubuntu Mono derivative Powerline')
+        set guifont=Ubuntu\ Mono\ derivative\ Powerline\ 12,Ubuntu\ Mono\ 12,DejaVu\ Sans\ Mono\ for\ Powerline\ 10
+        let g:airline_powerline_fonts = 1
+    else
+        let g:airline_powerline_fonts = 0
+        if !exists('g:airline_symbols')
+            let g:airline_symbols = {}
+        endif
+        let g:airline_left_sep = ''
+        let g:airline_right_sep = ''
+        let g:airline_symbols.linenr = '¶'
+        let g:airline_symbols.branch = '⎇ '
+        let g:airline_symbols.whitespace = 'Ξ'
+    endif
+    set noshowmode  " Mode is indicated in status line instead.
+
+    " Customizes airline theme to reduce contrast
+    let g:airline_theme_patch_func = 'AirlineThemePatch'
+    function! AirlineThemePatch(palette)
+        let ansi_colors = get(g:, 'solarized_termcolors', 16) != 256 && &t_Co >= 16 ? 1 : 0
+        let tty         = &t_Co == 8
+        let base03  = {'t': ansi_colors ?   8 : (tty ? '0' : 234), 'g': '#002b36'}
+        let base02  = {'t': ansi_colors ? '0' : (tty ? '0' : 235), 'g': '#073642'}
+        let base01  = {'t': ansi_colors ?  10 : (tty ? '0' : 240), 'g': '#586e75'}
+        let base00  = {'t': ansi_colors ?  11 : (tty ? '7' : 241), 'g': '#657b83'}
+        let base0   = {'t': ansi_colors ?  12 : (tty ? '7' : 244), 'g': '#839496'}
+        let base1   = {'t': ansi_colors ?  14 : (tty ? '7' : 245), 'g': '#93a1a1'}
+        let base2   = {'t': ansi_colors ?   7 : (tty ? '7' : 254), 'g': '#eee8d5'}
+        let base3   = {'t': ansi_colors ?  15 : (tty ? '7' : 230), 'g': '#fdf6e3'}
+        let yellow  = {'t': ansi_colors ?   3 : (tty ? '3' : 136), 'g': '#b58900'}
+        let orange  = {'t': ansi_colors ?   9 : (tty ? '1' : 166), 'g': '#cb4b16'}
+        let red     = {'t': ansi_colors ?   1 : (tty ? '1' : 160), 'g': '#dc322f'}
+        let magenta = {'t': ansi_colors ?   5 : (tty ? '5' : 125), 'g': '#d33682'}
+        let violet  = {'t': ansi_colors ?  13 : (tty ? '5' : 61 ), 'g': '#6c71c4'}
+        let blue    = {'t': ansi_colors ?   4 : (tty ? '4' : 33 ), 'g': '#268bd2'}
+        let cyan    = {'t': ansi_colors ?   6 : (tty ? '6' : 37 ), 'g': '#2aa198'}
+        let green   = {'t': ansi_colors ?   2 : (tty ? '2' : 64 ), 'g': '#859900'}
+
+        let mode_fg   = base02
+        let mode_bg   = base0
+        let branch_fg = base02
+        let branch_bg = base00
+
+        " Cheatsheet:
+        " airline_a = mode indicator
+        " airline_b = branch
+        " airline_c = middle (filename)
+        " airline_x = filetype & tag
+        " airline_y = encoding
+        " airline_z = line number / position
+        " airline_warning = syntastic & whitespace
+
+        if g:airline_theme == 'solarized'
+            let a:palette.normal.airline_a[1] = mode_bg.g
+            let a:palette.normal.airline_a[3] = mode_bg.t
+            let a:palette.normal.airline_z[1] = mode_bg.g
+            let a:palette.normal.airline_z[3] = mode_bg.t
+            for modes in keys(a:palette)
+                if modes != 'inactive' && has_key(a:palette[modes], 'airline_a')
+                    let a:palette[modes]['airline_a'][0] = mode_fg.g
+                    let a:palette[modes]['airline_a'][2] = mode_fg.t
+                endif
+                if modes != 'inactive' && has_key(a:palette[modes], 'airline_b')
+                    let a:palette[modes]['airline_b'][0] = branch_fg.g
+                    let a:palette[modes]['airline_b'][1] = branch_bg.g
+                    let a:palette[modes]['airline_b'][2] = branch_fg.t
+                    let a:palette[modes]['airline_b'][3] = branch_bg.t
+                endif
+                if modes != 'inactive' && has_key(a:palette[modes], 'airline_y')
+                    let a:palette[modes]['airline_y'][0] = branch_fg.g
+                    let a:palette[modes]['airline_y'][2] = branch_fg.t
+                    let a:palette[modes]['airline_y'][2] = branch_fg.t
+                    let a:palette[modes]['airline_y'][3] = branch_bg.t
+                endif
+                if modes != 'inactive' && has_key(a:palette[modes], 'airline_z')
+                    let a:palette[modes]['airline_z'][0] = mode_fg.g
+                    let a:palette[modes]['airline_z'][2] = mode_fg.t
+                endif
+            endfor
+        endif
+    endfunction
+"}}}
+
+" Visual Mark
+"   mm to add bookmark
+"   F2 & Shift+F2 to navigate bookmarks
+NeoBundle 'zhisheng/visualmark.vim'
+
+" Python auto-completion
+NeoBundle 'davidhalter/jedi-vim'
+
+" Markdown syntax highlighting for Vim
+NeoBundle 'tpope/vim-markdown'
+
+" Use . to repeat much more than simple inserts or deletes
+NeoBundle 'tpope/vim-repeat'
+
 NeoBundle 'https://github.com/vim-scripts/genutils.git'
-NeoBundle 'https://github.com/scrooloose/nerdtree.git'
 NeoBundle 'wombat256.vim'
 NeoBundle 'https://github.com/JimiSmith/vim-taglist.git'
 NeoBundle 'https://github.com/brookhong/cscope.vim.git'
@@ -163,49 +376,11 @@ NeoBundle 'bb:ns9tks/vim-fuzzyfinder', {'depends' : 'bb:ns9tks/vim-l9'}
 NeoBundle 'https://github.com/vim-scripts/lookupfile.git'
 NeoBundle 'fholgado/minibufexpl.vim'
 
-"== Visual Mark ==
-" mm to add bookmark
-" F2 & Shift+F2 to navigate bookmarks
-NeoBundle 'zhisheng/visualmark.vim'
-
-"== Linting ==
-NeoBundle 'scrooloose/syntastic'
-
-"== Auto-completion for quotes, parens, brackets, etc ==
-NeoBundle 'Raimondi/delimitMate'
-
-"== For Python ==
-NeoBundle 'davidhalter/jedi-vim'
-
-"== For Javascript ==
-NeoBundle 'jelera/vim-javascript-syntax'
-NeoBundle 'pangloss/vim-javascript'
-NeoBundle 'nathanaelkane/vim-indent-guides'
-" need to install tern first (npm install -g tern)
-NeoBundle 'marijnh/tern_for_vim'
-
 call neobundle#end()
-filetype plugin indent on     " Required!
+filetype plugin indent on     " Enable filetype-specific indenting and plugins. Required!
 
 " Installation check.
 NeoBundleCheck
-
-"===============================================================================
-"=== plugin: syntastic
-"===============================================================================
-"The plugin can invoke external linter to check your code. To see which external
-"linters are supported, look at https://github.com/scrooloose/syntastic/wiki/Syntax-Checkers
-"Note that aliases do not work; the acutal executables must be available in your $PATH.
-"
-"This does what it says on the tin. It will check your file on open too, not just on save.
-"You might not want this, so just leave it out if you don't.
-let g:syntastic_check_on_open=1
-
-"===============================================================================
-"=== plugin: delimitMate
-"===============================================================================
-"to split the current line
-imap <C-c> <CR><Esc>O
 
 "===============================================================================
 "=== plugin: bufferexplorer
@@ -219,33 +394,6 @@ imap <C-c> <CR><Esc>O
 let g:bufExplorerDetailedHelp=1
 let g:bufExplorerFindActive=1
 let g:bufExplorerSortBy='name'
-
-"===============================================================================
-"=== plugin: NERDTree
-"===============================================================================
-"== To invoke NERDTree, :NERDTree or \ndt ==
-"noremap \nt :NERDTree<CR>
-map <F6> :NERDTreeToggle<RETURN>
-let NERDTreeIgnore=['\.o$', '\.dep$', '\.gen$', '\.hpp$', '\.h$']
-"
-" t: to open file/directory in new tab
-" T: same as 't' but keep the focus unchanged
-" o: to open file/directory
-" O: recursively open
-" i: to open file/directory in split window
-"
-" x: close the currrent node's parent
-" X: colose the current node's children
-" p: Jump to the current node's parent
-" P: Jump to the root node
-" u: move the tree root up one directory
-"
-" r: to recursively refresh the current node
-" q: to quick the NERDTree
-" ?: for quick help
-"
-" B: toggle whether the bookmark table is displayed
-" :Bookmark <name>, bookmark the current node
 
 "===============================================================================
 "=== plugin: FuzzyFinder
@@ -428,14 +576,6 @@ endif
 "AutoClose.vim
 "Surround.vim
 
-
-"===============================================================================
-"=== vim tips
-"===============================================================================
-"Execute {cmd} in each buffer in the buffer list
-":bufdo! [cmd]
-
-
 "===============================================================================
 "=== Misc kep mapping
 "==============================================================================
@@ -460,38 +600,38 @@ map <F8> :set number!<BAr>set number?<CR>
 " :he highlight-groups
 " :he cterm-colors
 
-set background=dark
-if version > 580
-	" no guarantees for version 5.8 and below, but this makes it stop
-	" complaining
-	hi clear
-	if exists("syntax_on")
-	syntax reset
-	endif
-endif
-let g:colors_name="desert"
+"set background=dark
+"if version > 580
+    " no guarantees for version 5.8 and below, but this makes it stop
+    " complaining
+"    hi clear
+"    if exists("syntax_on")
+"    syntax reset
+"    endif
+"endif
+"let g:colors_name="desert"
 
-hi Normal	guifg=White guibg=grey20
-hi Cursor	guibg=khaki guifg=slategrey
-hi VertSplit	guibg=#c2bfa5 guifg=grey50 gui=none
-hi Folded	guibg=grey30 guifg=gold
-hi FoldColumn	guibg=grey30 guifg=tan
-hi IncSearch	guifg=slategrey guibg=khaki
-hi ModeMsg	guifg=goldenrod
-hi MoreMsg	guifg=SeaGreen
-hi NonText	guifg=LightBlue guibg=grey30
-hi Question	guifg=springgreen
-hi Search	guibg=peru guifg=wheat
-hi SpecialKey	guifg=yellowgreen
-hi StatusLine	guibg=#c2bfa5 guifg=black gui=none
-hi StatusLineNC	guibg=#c2bfa5 guifg=grey50 gui=none
-hi Title	guifg=indianred
-hi Visual	gui=none guifg=khaki guibg=olivedrab
-hi Comment	term=bold ctermfg=cyan
+"hi Normal	guifg=White guibg=grey20
+"hi Cursor	guibg=khaki guifg=slategrey
+"hi VertSplit	guibg=#c2bfa5 guifg=grey50 gui=none
+"hi Folded	guibg=grey30 guifg=gold
+"hi FoldColumn	guibg=grey30 guifg=tan
+"hi IncSearch	guifg=slategrey guibg=khaki
+"hi ModeMsg	guifg=goldenrod
+"hi MoreMsg	guifg=SeaGreen
+"hi NonText	guifg=LightBlue guibg=grey30
+"hi Question	guifg=springgreen
+"hi Search	guibg=peru guifg=wheat
+"hi SpecialKey	guifg=yellowgreen
+"hi StatusLine	guibg=#c2bfa5 guifg=black gui=none
+"hi StatusLineNC	guibg=#c2bfa5 guifg=grey50 gui=none
+"hi Title	guifg=indianred
+"hi Visual	gui=none guifg=khaki guibg=olivedrab
+"hi Comment	term=bold ctermfg=cyan
 
-if v:version > 700
-   set cursorline
-endif
+"if v:version > 700
+"   set cursorline
+"endif
 
 
 
