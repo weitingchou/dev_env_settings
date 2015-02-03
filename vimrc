@@ -1,637 +1,726 @@
-"===============================================================================
-"=== general Vim settings
-"===============================================================================
 
-let mapleader = ","     " Map <Leader> to , key
-
-set nocompatible        "do not allow vim compatible with vi mode
-set hidden              "allow you switch files without saving them
-set showcmd             "sc: Show (partial) command in the last line of the screen. Set this option off
-set history=10000
-set showmode            "smd: If in Insert, Replace, or Visual mode put a message on the last line
-set number
-set cmdheight=1         "ch: Number of screen lines to use for the command-line
-set viminfo='10000,\"10000
-set autochdir
-let &titleold='Terminal'
-set title
-set showmatch           "sm: When a bracket is inserted, briefly jump to the matching one
-set ruler               "ru: Show the line and column number of the cursor position, separated by a comma
-
-set incsearch
-set hlsearch
-
-syntax on
-filetype on
-
-"== To change all the existing tab characters to match the current tab settings, use :retab ==
-set cindent             "cin: enables automatic C program indenting
-set autoindent
-set smartindent         "override tab settings for make files (i.e. use real tabs and not spaces) 
-
-set expandtab	        "et: cooperate with "sw" (use space for tab)
-set shiftwidth=4        "sw: number of spaces for indentation
-set softtabstop=4       "sts: soft tabstop (interpret tab key as an indent)
-set backspace=eol,start,indent "bs: Influences the working of <BS>, <Del>, CTRL-W and CTRL-U in Insert
-                               "    mode.  This is a list of items, separated by commas.  Each item allows
-                               "    a way to backspace over something:
-                               "    value   effect
-                               "    -----   ------
-                               "    indent  allow backspacing over autoindent
-                               "    eol     allow backspacing over line breaks (join lines)
-                               "    start   allow backspacing over the start of insert; CTRL-W and CTRL-U
-                               "            stop once at the start of insert.
-"set tabstop=4
-
-"== Override tab settings for make files (i.e., use real tabs and not spaces) ==
-autocmd FileType make setlocal noexpandtab tabstop=4
-"autocmd filetype make set ts=8 sw=8 sts=8 noet
-
-"== Show the tab and trailing space characters ==
-"set list               "List mode: show tabs as CTRL-I is displayed, display $ after end of line.
-                        "Useful to see the difference between tabs and spaces and for trailing blanks.
-"set listchars=tab:»·,trail:·
-"set listchars=tab:>-,trail:-
-
-
-set laststatus=2        " The value of this option influences when the last window will have a status
-                        "    line:
-                        "    0: never
-                        "    1: only if there are at least two windows
-                        "    2: always
-set statusline=%<%f\ %m%=\ %h%r\ %-19([%p%%]\ %3l,%02c%03V%)%y
-highlight StatusLine ctermfg=blue ctermbg=white
-
-
-"== Encoding setting ==
-set fileencodings=utf-8,big5,euc-jp,gbk,euc-kr,utf-bom,iso8859-1 
-"set encoding=utf-8
-
-"== XML folding ==
-"au FileType xml setlocal foldmethod=syntax
-"zn: disable the folding
-"zN: enable the folding
-"za: open one closed fold under cursor / close one open folds under cursor
-"zA: open all folds under cursor recursively / close all folds under cursor recursively
-"zo: open one fold under cursor
-"zO: open all folds under cursor recursively
-"zc: close one fold under cursor
-"zC: open all folds under cursor recursively
-"
-"[z: Move to the start of the current open fold.
-"]z: Move to the end of the current open fold.
-"zj: Move downwards to the start of the next fold.
-"zk: Move upwards to the end of the next fold.
-
-"== Use the following command to enable folding at runtime ==
-"set foldmethod=syntax
-set foldmethod=indent
-let g:xml_syntax_folding=1
-set nofoldenable " | nofoldenable
-
-"== Turn on omni completion ==
-"To use omni completion, type <C-X><C-O> while open in Insert mode. 
-"If matching names are found, a pop-up menu opens which can be navigated 
-"using the <C-N> and <C-P> keys.
-filetype plugin on
-set omnifunc=syntaxcomplete#Complete
-
-"===============================================================================
-"=== key mappings for file editing
-"===============================================================================
-
-"== Easy edit of files in the same directory ==
-"to enter the ^M (enter): ctrl+v + Enter
-"to enter the ^[ (esc):   ctrl+v + ESC
-"to enter the ^R:         ctrl+v + ctrl+r
-noremap ,e :e <C-R>=expand("%:p:h") . "/"<C-M>
-noremap ,f :silent 1,$!xmllint --format --recover - 2>/dev/null<C-M>
-noremap ,t :tabnew <C-R>=expand("%:p:h") . "/"<C-M>
-
-"== Press Ctrl+\ to comment out a line ==
-vnoremap ^\ _i//
-xnoremap <Tab> >gv   "key map for indent in the visual mode
-xnoremap <S-Tab> <gv   "key map for indent in the visual mode
-
-"===============================================================================
-"=== key mappings for buffers and windows
-"===============================================================================
-"== To switch to the next buffer, :bnext!, bprevious!   ==
-"== To delete a buffer, :bdelete!                       ==
-"== To find the current buffers, use ':ls'              ==
-noremap <F4> :bprevious!
-
-"== Switch between windows, maximizing the current window ==
-set winminheight=1
-noremap <C-J> <C-W>j<C-W>_
-noremap <C-K> <C-W>k<C-W>_
-
-"===============================================================================
-"=== NeoBundle
-"===============================================================================
-
-"== Brief help ==
-" :NeoBundleList          - list configured bundles
-" :NeoBundleInstall(!)    - install(update) bundles
-" :NeoBundleClean(!)      - confirm(or auto-approve) removal of unused bundles 
-" :NeoBundleUpdate        - Update bundles
-
-if has('vim_starting')
-    set nocompatible               " Be iMproved
+" setup & neobundle {{{
+    set nocompatible
+    set all&    "reset everything to their defaults
     set runtimepath+=~/.vim/bundle/neobundle.vim/
-endif
-call neobundle#begin(expand('~/.vim/bundle/'))
-" Let NeoBundle manage NeoBundle
-NeoBundleFetch 'Shougo/neobundle.vim', {'rev': 'master'}
-
-" Recommended to install
-NeoBundleDepends 'Shougo/vimproc.vim', {
-    \ 'build': {
-        \ 'mac': 'make -f make_mac.mak',
-        \ 'unix': 'make -f make_unix.mak',
-        \ 'cygwin': 'make -f make_cygwin.mak',
-        \ 'windows': '"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\nmake.exe" make_msvc32.mak',
-    \ },
-\ }
-
-" Best git interface for Vim
-NeoBundle 'tpope/vim-fugitive' "{{{
-    nnoremap <silent> <leader>gs :Gstatus<CR>
-    nnoremap <silent> <leader>gd :Gdiff<CR>
-    nnoremap <silent> <leader>gc :Gcommit<CR>
-    nnoremap <silent> <leader>gb :Gblame<CR>
-    nnoremap          <leader>ge :Gedit<space>
-    nnoremap <silent> <leader>gl :silent Glog<CR>:copen<CR>
-    nnoremap <silent> <leader>gp :Git push<CR>
-    nnoremap <silent> <leader>gw :Gwrite<CR>
-    nnoremap <silent> <leader>gr :Gremove<CR>
-    autocmd FileType gitcommit nmap <buffer> U :Git checkout -- <C-r><C-g><CR>
-    autocmd BufReadPost fugitive://* set bufhidden=delete
+    call neobundle#begin(expand('~/.vim/bundle/'))
+    NeoBundleFetch 'Shougo/neobundle.vim'
 "}}}
 
-" A buffer/file/mru/tag explorer with fuzzy text matching
-NeoBundle 'kien/ctrlp.vim' "{{{
-    let g:ctrlp_clear_cache_on_exit=1
-    let g:ctrlp_max_height=40
-    let g:ctrlp_show_hidden=0
-    let g:ctrlp_follow_symlinks=1
-    let g:ctrlp_working_path_mode=0
-    let g:ctrlp_max_files=60000
-    let g:ctrlp_cache_dir='~/.vim/.cache/ctrlp'
+" functions {{{
+    function! s:get_cache_dir(suffix) "{{{
+        return resolve(expand(s:cache_dir . '/' . a:suffix))
+    endfunction "}}}
+    function! Source(begin, end) "{{{
+        let lines = getline(a:begin, a:end)
+        for line in lines
+            execute line
+        endfor
+    endfunction "}}}
+    function! Preserve(command) "{{{
+        " preparation: save last search, and cursor position.
+        let _s=@/
+        let l = line(".")
+        let c = col(".")
+        " do the business:
+        execute a:command
+        " clean up: restore previous search history, and cursor position
+        let @/=_s
+        call cursor(l, c)
+    endfunction "}}}
+    function! StripTrailingWhitespace() "{{{
+        call Preserve("%s/\\s\\+$//e")
+    endfunction "}}}
+    function! EnsureExists(path) "{{{
+        if !isdirectory(expand(a:path))
+            call mkdir(expand(a:path))
+        endif
+    endfunction "}}}
+    function! CloseWindowOrKillBuffer() "{{{
+        let number_of_windows_to_this_buffer = len(filter(range(1, winnr('$')), "winbufnr(v:val) == bufnr('%')"))
+
+        " never bdelete a nerd tree
+        if matchstr(expand("%"), 'NERD') == 'NERD'
+            wincmd c
+            return
+        endif
+
+        if number_of_windows_to_this_buffer > 1 
+            wincmd c
+        else
+            bdelete
+        endif
+    endfunction "}}}
 "}}}
 
-
-" These two togather make the absolute best autocomplete package around
-NeoBundle 'Valloric/YouCompleteMe' "{{{
-    let g:ycm_autoclose_preview_window_after_completion = 1
-    let g:ycm_autoclose_preview_window_after_insertion = 1
-"}}}
-NeoBundle 'scrooloose/syntastic' "{{{
-    "The plugin can invoke external linter to check your code. To see which external
-    "linters are supported, look at https://github.com/scrooloose/syntastic/wiki/Syntax-Checkers
-    "Note that aliases do not work; the acutal executables must be available in your $PATH.
-    
-    "This does what it says on the tin. It will check your file on open too, not just on save.
-    "You might not want this, so just leave it out if you don't.
-    let g:syntastic_check_on_open=1
-
-    let g:syntastic_error_symbol = '✗'
-    let g:syntastic_style_error_symbol = '✠'
-    let g:syntastic_warning_symbol = '∆'
-    let g:syntastic_style_warning_symbol = '≈'
-    let g:syntastic_enable_signs=0
-    nnoremap <silent> <Leader>e :SyntasticCheck<cr>:silent! Errors<cr>
-    vnoremap <silent> <Leader>e :SyntasticCheck<cr>:silent! Errors<cr>
-    nnoremap <silent> <leader>lc :lclose<cr>
-    nnoremap <silent> <leader>lo :lopen<cr>
+" default settings {{{
+    " initialize default settings
+    let s:settings = {}
+    let s:settings.default_indent = 4
+    let s:settings.max_column = 120
+    let s:setttins.autocomplete_method = 'neocomplcache'
+    let s:settings.colorscheme = 'solarized'
 "}}}
 
-" Solarized color scheme for Vim
-NeoBundle 'altercation/vim-colors-solarized' "{{{
-    set background=dark
-    set t_Co=16
-    if has('gui_running')
-        " I like the lower contrast for list characters.  But in a terminal
-        " this makes them completely invisible and causes the cursor to
-        " disappear.
-        let g:solarized_visibility="low" "Specifies contrast of invisibles.
-    endif
-    colorscheme solarized
-    highlight SignColumn guibg=#002b36
-"}}}
+" base configuration {{{
+    set timeoutlen=300          "mapping timeout
+    set ttimeoutlen=50          "keycode timeout
 
-"== Auto-completion for quotes, parens, brackets, etc ==
-NeoBundle 'Raimondi/delimitMate' "{{{
-    "to split the current line
-    imap <C-c> <CR><Esc>O
-
-    let delimitMate_expand_cr          = 1
-    let delimitMate_expand_space       = 1
-    let delimitMate_balance_matchpairs = 1
-    let delimitMate_jump_expansion     = 1
-"}}}
-
-"== For Javascript ==
-NeoBundle 'jelera/vim-javascript-syntax'
-NeoBundle 'pangloss/vim-javascript' "{{{
-    if has('conceal')
-        let g:javascript_conceal=1
-        autocmd FileType javascript set conceallevel=2 concealcursor=n
-    endif
-"}}}
-NeoBundle 'nathanaelkane/vim-indent-guides'
-NeoBundle 'marijnh/tern_for_vim' "{{{
-    " need to install tern first (npm install -g tern)
-    augroup Tern
-        autocmd!
-        autocmd FileType javascript nnoremap <buffer> <silent> <leader>td :TernDef<cr>
-        autocmd FileType javascript nnoremap <buffer> <silent> <leader>tD :TernDefSplit<cr>
-        autocmd FileType javascript nnoremap <buffer> <silent> <leader>tr :TernRefs<cr>
-        autocmd FileType javascript nnoremap <buffer> <silent> <leader>tc :TernRename<cr>
-    augroup END
-"}}}
-
-NeoBundle 'https://github.com/scrooloose/nerdtree.git' "{{{
-    let NERDTreeShowHidden=1
-    let NERDTreeQuitOnOpen=0
-    let NERDTreeShowLineNumbers=1
-    let NERDTreeChDirMode=0
-    let NERDTreeShowBookmarks=1
-    let NERDTreeIgnore=['\.o$', '\.dep$', '\.gen$', '\.hpp$', '\.h$', '\.git', '\.hg']
-    let NERDTreeBookmarksFile='~/.vim/.cache/NERDTreeBookmarks'
-    nnoremap <silent> <leader>d :NERDTreeToggle<CR>
-    nnoremap <silent> <leader>f :NERDTreeFind<CR>
-"}}}
-
-NeoBundle 'bling/vim-airline' "{{{
-    if fontdetect#hasFontFamily('Ubuntu Mono derivative Powerline')
-        set guifont=Ubuntu\ Mono\ derivative\ Powerline\ 12,Ubuntu\ Mono\ 12,DejaVu\ Sans\ Mono\ for\ Powerline\ 10
-        let g:airline_powerline_fonts = 1
+    "set fileencodings=utf-8,big5,euc-jp,gbk,euc-kr,utf-bom,iso8859-1 
+    set encoding=utf-8          "set encoding for text
+    set history=10000
+    set ttyfast                 "assume fast terminal connection
+    if exists('$TMUX')
+        set clipboard=
     else
-        let g:airline_powerline_fonts = 0
-        if !exists('g:airline_symbols')
-            let g:airline_symbols = {}
-        endif
-        let g:airline_left_sep = ''
-        let g:airline_right_sep = ''
-        let g:airline_symbols.linenr = '¶'
-        let g:airline_symbols.branch = '⎇ '
-        let g:airline_symbols.whitespace = 'Ξ'
+        set clipboard=unnamed   "sync with OS clipboard
     endif
-    set noshowmode  " Mode is indicated in status line instead.
 
-    " Customizes airline theme to reduce contrast
-    let g:airline_theme_patch_func = 'AirlineThemePatch'
-    function! AirlineThemePatch(palette)
-        let ansi_colors = get(g:, 'solarized_termcolors', 16) != 256 && &t_Co >= 16 ? 1 : 0
-        let tty         = &t_Co == 8
-        let base03  = {'t': ansi_colors ?   8 : (tty ? '0' : 234), 'g': '#002b36'}
-        let base02  = {'t': ansi_colors ? '0' : (tty ? '0' : 235), 'g': '#073642'}
-        let base01  = {'t': ansi_colors ?  10 : (tty ? '0' : 240), 'g': '#586e75'}
-        let base00  = {'t': ansi_colors ?  11 : (tty ? '7' : 241), 'g': '#657b83'}
-        let base0   = {'t': ansi_colors ?  12 : (tty ? '7' : 244), 'g': '#839496'}
-        let base1   = {'t': ansi_colors ?  14 : (tty ? '7' : 245), 'g': '#93a1a1'}
-        let base2   = {'t': ansi_colors ?   7 : (tty ? '7' : 254), 'g': '#eee8d5'}
-        let base3   = {'t': ansi_colors ?  15 : (tty ? '7' : 230), 'g': '#fdf6e3'}
-        let yellow  = {'t': ansi_colors ?   3 : (tty ? '3' : 136), 'g': '#b58900'}
-        let orange  = {'t': ansi_colors ?   9 : (tty ? '1' : 166), 'g': '#cb4b16'}
-        let red     = {'t': ansi_colors ?   1 : (tty ? '1' : 160), 'g': '#dc322f'}
-        let magenta = {'t': ansi_colors ?   5 : (tty ? '5' : 125), 'g': '#d33682'}
-        let violet  = {'t': ansi_colors ?  13 : (tty ? '5' : 61 ), 'g': '#6c71c4'}
-        let blue    = {'t': ansi_colors ?   4 : (tty ? '4' : 33 ), 'g': '#268bd2'}
-        let cyan    = {'t': ansi_colors ?   6 : (tty ? '6' : 37 ), 'g': '#2aa198'}
-        let green   = {'t': ansi_colors ?   2 : (tty ? '2' : 64 ), 'g': '#859900'}
+    set hidden                  "allow you switch files without saving them
+    set autoread                "auto reload if file saved externally
+    set fileformats+=mac        "add mac to auto-detection of file format line
+    set nrformats-=octal        "always assume decimal numbers
+    set showcmd                 "show (partial) command in the last line of the screen
+    set tags=tags:/
+    set showfulltag
+    set modeline
+    set modelines=5
 
-        let mode_fg   = base02
-        let mode_bg   = base0
-        let branch_fg = base02
-        let branch_bg = base00
+    set noshelltemp             "use pipes
 
-        " Cheatsheet:
-        " airline_a = mode indicator
-        " airline_b = branch
-        " airline_c = middle (filename)
-        " airline_x = filetype & tag
-        " airline_y = encoding
-        " airline_z = line number / position
-        " airline_warning = syntastic & whitespace
+    set cmdheight=1             "Number of screen lines to use for the command-line
+    set viminfo='10000,\"10000
+    set autochdir
 
-        if g:airline_theme == 'solarized'
-            let a:palette.normal.airline_a[1] = mode_bg.g
-            let a:palette.normal.airline_a[3] = mode_bg.t
-            let a:palette.normal.airline_z[1] = mode_bg.g
-            let a:palette.normal.airline_z[3] = mode_bg.t
-            for modes in keys(a:palette)
-                if modes != 'inactive' && has_key(a:palette[modes], 'airline_a')
-                    let a:palette[modes]['airline_a'][0] = mode_fg.g
-                    let a:palette[modes]['airline_a'][2] = mode_fg.t
-                endif
-                if modes != 'inactive' && has_key(a:palette[modes], 'airline_b')
-                    let a:palette[modes]['airline_b'][0] = branch_fg.g
-                    let a:palette[modes]['airline_b'][1] = branch_bg.g
-                    let a:palette[modes]['airline_b'][2] = branch_fg.t
-                    let a:palette[modes]['airline_b'][3] = branch_bg.t
-                endif
-                if modes != 'inactive' && has_key(a:palette[modes], 'airline_y')
-                    let a:palette[modes]['airline_y'][0] = branch_fg.g
-                    let a:palette[modes]['airline_y'][2] = branch_fg.t
-                    let a:palette[modes]['airline_y'][2] = branch_fg.t
-                    let a:palette[modes]['airline_y'][3] = branch_bg.t
-                endif
-                if modes != 'inactive' && has_key(a:palette[modes], 'airline_z')
-                    let a:palette[modes]['airline_z'][0] = mode_fg.g
-                    let a:palette[modes]['airline_z'][2] = mode_fg.t
-                endif
-            endfor
+    " whitespace
+    set backspace=indent,eol,start                      "allow backspacing everything in insert mode
+    set autoindent                                      "automatically indent to match adjacent lines
+    set expandtab                                       "spaces instead of tabs
+    set smarttab                                        "use shiftwidth to enter tabs
+    let &tabstop=s:settings.default_indent              "number of spaces per tab for display
+    let &softtabstop=s:settings.default_indent          "number of spaces per tab in insert mode
+    let &shiftwidth=s:settings.default_indent           "number of spaces when indenting
+    set list                                            "highlight whitespace
+    set listchars=tab:│\ ,trail:•,extends:❯,precedes:❮
+    set shiftround
+    set linebreak
+    let &showbreak='↪ '
+
+    set scrolloff=1                                     "always show content after scroll
+    set scrolljump=5                                    "minimum number of lines to scroll
+    set display+=lastline
+    set wildmenu                                        "show list for autocomplete
+    set wildmode=list:full
+    set wildignorecase
+
+    set splitbelow
+    set splitright
+
+    " disable sounds
+    set noerrorbells
+    set novisualbell
+    set t_vb=
+
+    " searching
+    set incsearch           "incremental searching
+    set hlsearch            "highlight searching
+    set ignorecase          "ignore case for searching
+    set smartcase           "do case-sensitive if there's a capital letter
+    if executable('ag')
+        set grepprg=ag\ --nogroup\ --column\ --smart-case\ --nocolor\ --follow
+        set grepformat=%f:%l:%c:%m
+    endif
+
+    " vim file/folder management {{{
+        " persistent undo
+        if exists('+undofile')
+            set undofile
+            let &undodir = s:get_cache_dir('undo')
         endif
-    endfunction
+
+        " backups
+        set backup
+        let &backupdir = s:get_cache_dir('backup')
+
+        " swap files
+        let &directory = s:get_cache_dir('swap')
+        set noswapfile
+
+        call EnsureExists(s:cache_dir)
+        call EnsureExists(&undodir)
+        call EnsureExists(&backupdir)
+        call EnsureExists(&directory)
+    "}}}
+
+    let mapleader = ","         " Map <Leader> to , key
+    let g:mapleader = ","
 "}}}
 
-" Visual Mark
-"   mm to add bookmark
-"   F2 & Shift+F2 to navigate bookmarks
-NeoBundle 'zhisheng/visualmark.vim'
+" ui configuration {{{
+    set showmatch               "automatically highlight matching braces/brackets/etc.
+    set matchtime=2             "tens of a second to show matching parentheses
+    set number
+    set lazyredraw
+    set laststatus=2
+    set noshowmode
+    "set foldenable              "enable folds by default
+    "set foldmethod=syntax       "fold via syntax of files
+    "set foldlevelstart=99       "open all folds by default
+    let g:xml_syntax_folding=1  "enable xml folding
 
-" Python auto-completion
-NeoBundle 'davidhalter/jedi-vim'
-
-" Markdown syntax highlighting for Vim
-NeoBundle 'tpope/vim-markdown'
-
-" Use . to repeat much more than simple inserts or deletes
-NeoBundle 'tpope/vim-repeat'
-
-NeoBundle 'https://github.com/vim-scripts/genutils.git'
-NeoBundle 'wombat256.vim'
-NeoBundle 'https://github.com/JimiSmith/vim-taglist.git'
-NeoBundle 'https://github.com/brookhong/cscope.vim.git'
-NeoBundle 'STL-Syntax'
-NeoBundle 'vim-json-bundle'
-NeoBundle 'Shougo/neocomplcache'
-NeoBundle 'https://github.com/c9s/perlomni.vim.git'
-NeoBundle 'https://github.com/ervandew/screen.git'
-NeoBundle 'fatih/vim-go'
-NeoBundle 'https://github.com/ekalinin/Dockerfile.vim.git'
-NeoBundle 'bb:ns9tks/vim-fuzzyfinder', {'depends' : 'bb:ns9tks/vim-l9'}
-NeoBundle 'https://github.com/vim-scripts/lookupfile.git'
-NeoBundle 'fholgado/minibufexpl.vim'
-
-call neobundle#end()
-filetype plugin indent on     " Enable filetype-specific indenting and plugins. Required!
-
-" Installation check.
-NeoBundleCheck
-
-"===============================================================================
-"=== plugin: bufferexplorer
-"===============================================================================
-" to invoke bufferexplorer:
-"   \be (normal open) or :bufexplorer
-"   \bs (force horizontal split open)
-"   \bv (force vertical split open)
-" t: to open buffer in new tab
-" D: to delete buffer
-let g:bufExplorerDetailedHelp=1
-let g:bufExplorerFindActive=1
-let g:bufExplorerSortBy='name'
-
-"===============================================================================
-"=== plugin: FuzzyFinder
-"===============================================================================
-"== You can launch FuzzyFinder with the following commands:
-"            Command            Mode
-"            |:FufBuffer|       - Buffer mode (|fuf-buffer-mode|) 
-"            |:FufFile|         - File mode (|fuf-file-mode|) 
-"            |:FufCoverageFile| - Coverage-File mode (|fuf-coveragefile-mode|) 
-"            |:FufDir|          - Directory mode (|fuf-dir-mode|) 
-"            |:FufMruFile|      - MRU-File mode (|fuf-mrufile-mode|) //MRU: Mount Recently Used 
-"            |:FufMruCmd|       - MRU-Command mode (|fuf-mrucmd-mode|) 
-"            |:FufBookmarkFile| - Bookmark-File mode (|fuf-bookmarkfile-mode|) 
-"            |:FufBookmarkDir|  - Bookmark-Dir mode (|fuf-bookmarkdir-mode|) 
-"            |:FufTag|          - Tag mode (|fuf-tag-mode|) 
-"            |:FufBufferTag|    - Buffer-Tag mode (|fuf-buffertag-mode|) 
-"            |:FufTaggedFile|   - Tagged-File mode (|fuf-taggedfile-mode|) 
-"            |:FufJumpList|     - Jump-List mode (|fuf-jumplist-mode|) 
-"            |:FufChangeList|   - Change-List mode (|fuf-changelist-mode|) 
-"            |:FufQuickfix|     - Quickfix mode (|fuf-quickfix-mode|) 
-"            |:FufLine|         - Line mode (|fuf-line-mode|) 
-"            |:FufHelp|         - Help mode (|fuf-help-mode|) 
-noremap fb :FufBuffer<CR>
-noremap ff :FufFile<CR>
-noremap fc :FufMruCmd<CR>
-
-"let g:FuzzyFinderOptions.Base.enumerating_limit = 10
-" Enter: to open file in the current window
-" <C-l>: to open file in a new tab
-" <C-t>: to change mode
-" To fresh the cache, :FuzzyFinderRenewCache
-" to recursively search the child directories, enter search patterns like "**\*.txt"
-
-"===============================================================================
-"=== plugin: EasyGrep
-"===============================================================================
-" :help EasyGrep
-" to search patterns, \vv
-" to search and replace patterns, \vr
-" to change the search option, \vo
-let g:EasyGrepReplaceWindowMode=0  "replace in a new tab
-let g:EasyGrepEveryMatch=1         "global match
-let g:EasyGrepReplaceAllPerFile=1  "'y' for the whole file, not for the the whole search result
-
-"===============================================================================
-"=== plugin: gdb settings
-"===============================================================================
-syntax enable                      "enable syntax highlighting
-set previewheight=12
-run macros/gdb_mappings.vim        "source key mappings listed in this document
-"set asm=0                          "don't show any assembly stuff
-"set gdbprg=/usr/bin/gdb
-
-"===============================================================================
-"=== plug-in: Taglist  (depend on ctags)
-"===============================================================================
-let Tlist_Ctags_Cmd="/usr/bin/ctags"
-let Tlist_Inc_Winwidth = 0
-let Tlist_File_Fold_Auto_Close=1
-"let Tlist_GainFocus_On_ToggleOpen = 1
-filetype on
-
-"== Hotkey definition for taglist ==
-noremap <F12> :Tlist<CR>
-noremap <F3> :wincmd p
-
-"===============================================================================
-"=== cscope
-"===============================================================================
-" find $WORKDIR/datapower -name "*.c" -o -name "*.h" -o -name "*.cpp" -o -name "*.hpp" > $WORKDIR/datapower/cscope.files
-" cscope -Rbq
-" export CSCOPE_DB=$WORKDIR/datapower/cscope.out
-
-"== ctrl + shift + _, then press "s", to find the symbol under cursor (shortcut for cscope) ==
-"nmap <C-_>s :cs find s <C-R>=expand("<cword>")<CR><CR>
-"== ctrl + shift + _, then press "f", to open the file under cursor (shortcut for cscope) ==
-"nmap <C-_>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
-
-if has("cscope")
-    set csprg=/usr/bin/cscope
-    set csto=1
-    set cst
-    set nocsverb
-    " add any database in current directory
-    if filereadable("cscope.out")
-        cs add cscope.out
+    set cursorline
+    autocmd WinLeave * setlocal nocursorline
+    autocmd WinEnter * setlocal cursorline
+    let &colorcolumn=s:settings.max_column
+    if s:settings.enable_cursorcolumn
+        set cursorcolumn
+        autocmd WinLeave * setlocal nocursorcolumn
+        autocmd WinEnter * setlocal cursorcolumn
     endif
-    set csverb
-endif
 
-"== shortcut for cscope (<C-@> is ctrl + @) ==
-"s: find this c symbol
-"g: find this definition
-"d: find functions called by this function
-"c: find functions calling this function
-"t: find this text string
-"e: find this egrep pattern
-"f: find this file
-"i: find files #include this file
-nmap <C-@>s :cs find s <C-R>=expand("<cword>")<CR><CR>      
-nmap <C-@>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>d :cs find d <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>c :cs find c <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>t :cs find t <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>e :cs find e <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
-nmap <C-@>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+    if has('conceal')
+        set conceallevel=1
+        set listchars+=conceal:Δ
+    endif
 
-"===============================================================================
-"=== plug-in: OmniCppComplete  (depend on ctags)
-"===============================================================================
-"== http://vim.wikia.com/wiki/C++_code_completion ==
-"== http://design.liberta.co.za/articles/code-completion-intellisense-for-cpp-in-vim-with-omnicppcomplete/ ==
-"
-":help omnicppcomplete
-"
-"cd $WORKDIR/datapower/
-"find $WORKDIR/datapower/ -name "*.c" -o -name "*.h" -o -name "*.cpp" -o -name "*.hpp" > $WORKDIR/datapower/ctags.files
-"ctags -n -f omnicppcomplete.tags --C++-types=+p --c++-kinds=+p --fields=+iaS --extra=+q * -L ctags.files
-"
-"== enable the plugin (required) ==
-"set nocp
-"filetype plugin on
-"set tags+=/userdata/p4/main/datapower/onmicppcomplete.tags
+    if has('gui_running')
+        " open maximized
+        set lines=999 columns=9999
+        if s:is_windows
+        autocmd GUIEnter * simalt ~x
+        endif
 
-"== auto close options when exiting insert mode (conflicts with gdbvim) ==
-"== autocmd InsertLeave * if pumvisible() == 0|pclose|endif ==
-"set completeopt=menu,menuone
+        set guioptions+=t                                 "tear off menu items
+        set guioptions-=T                                 "toolbar icons
 
-"== to invoke OmniCppComplete, <C-x><C-o> ==
-"let OmniCpp_NamespaceSearch = 1
-"let OmniCpp_GlobalScopeSearch = 1
-"let OmniCpp_DisplayMode=1
-"let OmniCpp_ShowAccess = 1
-"let OmniCpp_MayCompleteDot = 1
-"let OmniCpp_MayCompleteArrow = 1
-"let OmniCpp_MayCompleteScope = 1
-"let OmniCpp_SelectFirstItem = 2
-"let OmniCpp_ShowPrototypeInAbbr = 1
+        if s:is_macvim
+            set gfn=Ubuntu_Mono:h14
+            set transparency=2
+        endif
 
-"===============================================================================
-"=== plug-in: minibuffer
-"===============================================================================
-" control + the vim direction keys [hjkl] can be made to move you between windows. 
-" control + arrow keys can be made to do the same thing 
-"  control + tab & shift + control + tab can be setup to switch through your open windows (like in MS Windows) 
-" control + tab & shift + control + tab can alternatively be setup to cycle forwards and backwards through your modifiable buffers in the current window 
-"let g:miniBufExplMapWindowNavVim = 1 
-"let g:miniBufExplMapWindowNavArrows = 1 
-let g:miniBufExplMapCTabSwitchBufs = 1
-"let g:miniBufExplModSelTarget = 1 
+        if s:is_windows
+            set gfn=Ubuntu_Mono:h10
+        endif
+
+        if has('gui_gtk')
+            set gfn=Ubuntu\ Mono\ 11
+        endif
+    else
+        if $COLORTERM == 'gnome-terminal'
+            set t_Co=256 "why you no tell me correct colors?!?!
+        endif
+        if $TERM_PROGRAM == 'iTerm.app'
+            " different cursors for insert vs normal mode
+            if exists('$TMUX')
+                let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+                let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+            else
+                let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+                let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+            endif
+        endif
+    endif
+"}}}
 
 
-"===============================================================================
-"=== plug-in: Lookupfile (similar to fuzzyfinder)
-"===============================================================================
-if filereadable(expand('$WORKDIR/filenametags'))
-   let g:LookupFile_TagExpr = string(expand('$WORKDIR/filenametags'))
-endif
+" plugin/mapping configuration {{{
+    " Core
+    NeoBundle 'tpope/vim-surround'
+    NeoBundle 'tpope/vim-repeat'
+    NeoBundle 'tpope/vim-dispatch'
+    NeoBundle 'tpope/vim-eunuch'
+    NeoBundle 'Shougo/vimproc.vim', {
+        \ 'build': {
+            \ 'mac': 'make -f make_mac.mak',
+            \ 'unix': 'make -f make_unix.mak',
+            \ 'cygwin': 'make -f make_cygwin.mak',
+            \ 'windows': '"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\nmake.exe" make_msvc32.mak',
+        \ },
+    \ }
 
-"if !exists('g:LookupFile_TagExpr')
-"  let g:LookupFile_TagExpr = '"$WORKDIR/datapower/filenametags"'
-"endif
+    " Javascript
+    NeoBundle 'marijnh/tern_for_vim', {
+        \ 'autoload': { 'filetypes': ['javascript'] },
+        \ 'build': {
+            \ 'mac': 'npm install',
+            \ 'unix': 'npm install',
+            \ 'cygwin': 'npm install',
+            \ 'windows': 'npm install',
+        \ },
+    \ }
+    NeoBundle 'pangloss/vim-javascript', {'autoload':{'filetypes':['javascript']}}
+    NeoBundle 'maksimr/vim-jsbeautify', {'autoload':{'filetypes':['javascript']}} "{{{
+        nnoremap <leader>fjs :call JsBeautify()<cr>
+    "}}}
+    NeoBundle 'leafgarland/typescript-vim', {'autoload':{'filetypes':['typescript']}}
+    NeoBundle 'kchmck/vim-coffee-script', {'autoload':{'filetypes':['coffee']}}
+    NeoBundle 'mmalecki/vim-node.js', {'autoload':{'filetypes':['javascript']}}
+    NeoBundle 'leshill/vim-json', {'autoload':{'filetypes':['javascript','json']}}
+    NeoBundle 'othree/javascript-libraries-syntax.vim', {'autoload':{'filetypes':['javascript','coffee','ls','typescript']}}
 
+    " Ruby
+    NeoBundle 'tpope/vim-rails'
+    NeoBundle 'tpope/vim-bundler'
 
-"===============================================================================
-"=== plug-in: trinity
-"===============================================================================
-"trinity.vim: Build the trinity of srcexpl,taglist, NERD_tree to be a good IDE
-"nmap <F8> :TrinityToggleAll<CR>
-"nmap <F9> :TrinityToggleSourceExplorer<CR>
-"nmap <F10> :TrinityToggleTagList<CR>
-"nmap <F11> :TrinityToggleNERDTree<CR>
+    " Python
+    NeoBundle 'klen/python-mode', {'autoload':{'filetypes':['python']}} "{{{
+        let g:pymode_rope=0
+    "}}}
+    NeoBundle 'davidhalter/jedi-vim', {'autoload':{'filetypes':['python']}} "{{{
+        let g:jedi#popup_on_dot=0
+    "}}}
 
+    " Go
+    NeoBundle 'jnwhiteh/vim-golang', {'autoload':{'filetypes':['go']}}
+    NeoBundle 'nsf/gocode', {'autoload': {'filetypes':['go']}, 'rtp': 'vim'}
 
-"===============================================================================
-"=== plug-in: 
-"===============================================================================
-"echofunc.vim: Echo the function declaration in the command line for C/C++
-"AutoClose.vim
-"Surround.vim
+    " C/C++
+    NeoBundle 'brookhong/cscope.vim.git', {'autoload':{'filetypes':['c', 'cpp']}} "{{{
+        if has('cscope')
+            set csprg=/usr/bin/cscope
+            set csto=1
+            set cst
+            set nocsverb
+            " add any database in current directory
+            if filereadable("cscope.out")
+                cs add cscope.out
+            endif
+            set csverb
+        endif
+        "s: find this c symbol
+        "g: find this definition
+        "d: find functions called by this function
+        "c: find functions calling this function
+        "t: find this text string
+        "e: find this egrep pattern
+        "f: find this file
+        "i: find files #include this file
+        nmap <C-@>s :cs find s <C-R>=expand("<cword>")<CR><CR> 
+        nmap <C-@>g :cs find g <C-R>=expand("<cword>")<CR><CR>
+        nmap <C-@>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+        nmap <C-@>c :cs find c <C-R>=expand("<cword>")<CR><CR>
+        nmap <C-@>t :cs find t <C-R>=expand("<cword>")<CR><CR>
+        nmap <C-@>e :cs find e <C-R>=expand("<cword>")<CR><CR>
+        nmap <C-@>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
+        nmap <C-@>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+    "}}}
+    NeoBundle 'STL-Syntax'
 
-"===============================================================================
-"=== Misc kep mapping
-"==============================================================================
-map <F9> :set paste!<BAr>set paste?<CR>
-set pastetoggle=<F9>
-map <F8> :set number!<BAr>set number?<CR>
-"map <F7> :set spell!<BAr>set spell?<CR>
+    " autocomplete
+    NeoBundle 'honza/vim-snippets'
+    NeoBundle 'Shougo/neosnippet-snippets'
+    NeoBundle 'Shougo/neosnippet.vim' "{{{
+        let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets,~/.vim/snippets'
+        let g:neosnippet#enable_snipmate_compatibility=1
 
+        imap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : (pumvisible() ? "\<C-n>" : "\<TAB>")
+        smap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+        imap <expr><S-TAB> pumvisible() ? "\<C-p>" : ""
+        smap <expr><S-TAB> pumvisible() ? "\<C-p>" : ""
+    "}}}
+    NeoBundle 'Shougo/neocomplcache.vim', {'autoload':{'insert':1}} "{{{
+        let g:neocomplcache_enable_at_startup=1
+        let g:neocomplcache_temporary_dir=s:get_cache_dir('neocomplcache')
+        let g:neocomplcache_enable_fuzzy_completion=1
+    "}}}
 
-"===============================================================================
-"=== This is just the colorscheme " desert " . I put it here for lazy
-"==============================================================================
-" Vim color file
-" Maintainer:	Hans Fugal <hans@fugal.net>
-" Last Change:	$Date: 2003/05/06 16:37:49 $
-" Last Change:	$Date: 2003/06/02 19:40:21 $
-" URL:		http://hans.fugal.net/vim/colors/desert.vim
-" Version:	$Id: desert.vim,v 1.6 2003/06/02 19:40:21 fugalh Exp $
+    " editing
+    NeoBundle 'editorconfig/editorconfig-vim', {'autoload':{'insert':1}}
+    NeoBundle 'tpope/vim-endwise'
+    NeoBundle 'tpope/vim-speeddating'
+    NeoBundle 'thinca/vim-visualstar'
+    NeoBundle 'tomtom/tcomment_vim'
+    NeoBundle 'terryma/vim-expand-region'
+    NeoBundle 'terryma/vim-multiple-cursors'
+    NeoBundle 'chrisbra/NrrwRgn'
+    NeoBundle 'godlygeek/tabular', {'autoload':{'commands':'Tabularize'}} "{{{
+        nmap <Leader>a& :Tabularize /&<CR>
+        vmap <Leader>a& :Tabularize /&<CR>
+        nmap <Leader>a= :Tabularize /=<CR>
+        vmap <Leader>a= :Tabularize /=<CR>
+        nmap <Leader>a: :Tabularize /:<CR>
+        vmap <Leader>a: :Tabularize /:<CR>
+        nmap <Leader>a:: :Tabularize /:\zs<CR>
+        vmap <Leader>a:: :Tabularize /:\zs<CR>
+        nmap <Leader>a, :Tabularize /,<CR>
+        vmap <Leader>a, :Tabularize /,<CR>
+        nmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+        vmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+    "}}}
+    NeoBundle 'jiangmiao/auto-pairs'
+    NeoBundle 'justinmk/vim-sneak' "{{{
+        let g:sneak#streak = 1
+    "}}}
 
-" cool help screens
-" :he group-name
-" :he highlight-groups
-" :he cterm-colors
+    " git
+    NeoBundle 'tpope/vim-fugitive' "{{{
+        nnoremap <silent> <leader>gs :Gstatus<CR>
+        nnoremap <silent> <leader>gd :Gdiff<CR>
+        nnoremap <silent> <leader>gc :Gcommit<CR>
+        nnoremap <silent> <leader>gb :Gblame<CR>
+        nnoremap          <leader>ge :Gedit<space>
+        nnoremap <silent> <leader>gl :silent Glog<CR>:copen<CR>
+        nnoremap <silent> <leader>gp :Git push<CR>
+        nnoremap <silent> <leader>gw :Gwrite<CR>
+        nnoremap <silent> <leader>gr :Gremove<CR>
+        autocmd FileType gitcommit nmap <buffer> U :Git checkout -- <C-r><C-g><CR>
+        autocmd BufReadPost fugitive://* set bufhidden=delete
+    "}}}
 
-"set background=dark
-"if version > 580
-    " no guarantees for version 5.8 and below, but this makes it stop
-    " complaining
-"    hi clear
-"    if exists("syntax_on")
-"    syntax reset
-"    endif
-"endif
-"let g:colors_name="desert"
+    " docker
+    NeoBundle 'https://github.com/ekalinin/Dockerfile.vim.git'
 
-"hi Normal	guifg=White guibg=grey20
-"hi Cursor	guibg=khaki guifg=slategrey
-"hi VertSplit	guibg=#c2bfa5 guifg=grey50 gui=none
-"hi Folded	guibg=grey30 guifg=gold
-"hi FoldColumn	guibg=grey30 guifg=tan
-"hi IncSearch	guifg=slategrey guibg=khaki
-"hi ModeMsg	guifg=goldenrod
-"hi MoreMsg	guifg=SeaGreen
-"hi NonText	guifg=LightBlue guibg=grey30
-"hi Question	guifg=springgreen
-"hi Search	guibg=peru guifg=wheat
-"hi SpecialKey	guifg=yellowgreen
-"hi StatusLine	guibg=#c2bfa5 guifg=black gui=none
-"hi StatusLineNC	guibg=#c2bfa5 guifg=grey50 gui=none
-"hi Title	guifg=indianred
-"hi Visual	gui=none guifg=khaki guibg=olivedrab
-"hi Comment	term=bold ctermfg=cyan
+    " navigation
+    NeoBundle 'mileszs/ack.vim' "{{{
+        if executable('ag')
+            let g:ackprg = "ag --nogroup --column --smart-case --follow"
+        endif
+    "}}}
+    NeoBundle 'mbbill/undotree', {'autoload':{'commands':'UndotreeToggle'}} "{{{
+        let g:undotree_SplitLocation='botright'
+        let g:undotree_SetFocusWhenToggle=1
+        nnoremap <silent> <F5> :UndotreeToggle<CR>
+    "}}}
+    NeoBundle 'EasyGrep', {'autoload':{'commands':'GrepOptions'}} "{{{
+        let g:EasyGrepRecursive=1
+        let g:EasyGrepAllOptionsInExplorer=1
+        let g:EasyGrepCommand=1
+        nnoremap <leader>vo :GrepOptions<cr>
+    "}}}
+    NeoBundle 'ctrlpvim/ctrlp.vim', { 'depends': 'tacahiroy/ctrlp-funky' } "{{{
+        let g:ctrlp_clear_cache_on_exit=1
+        let g:ctrlp_max_height=40
+        let g:ctrlp_show_hidden=0
+        let g:ctrlp_follow_symlinks=1
+        let g:ctrlp_max_files=20000
+        let g:ctrlp_cache_dir=s:get_cache_dir('ctrlp')
+        let g:ctrlp_reuse_window='startify'
+        let g:ctrlp_extensions=['funky']
+        let g:ctrlp_custom_ignore = {
+            \ 'dir': '\v[\/]\.(git|hg|svn|idea)$',
+            \ 'file': '\v\.DS_Store$'
+        \ }
 
-"if v:version > 700
-"   set cursorline
-"endif
+        if executable('ag')
+            let g:ctrlp_user_command='ag %s -l --nocolor -g ""'
+        endif
 
+        nmap \ [ctrlp]
+        nnoremap [ctrlp] <nop>
+
+        nnoremap [ctrlp]t :CtrlPBufTag<cr>
+        nnoremap [ctrlp]T :CtrlPTag<cr>
+        nnoremap [ctrlp]l :CtrlPLine<cr>
+        nnoremap [ctrlp]o :CtrlPFunky<cr>
+        nnoremap [ctrlp]b :CtrlPBuffer<cr>
+    "}}}
+    NeoBundle 'scrooloose/nerdtree', {'autoload':{'commands':['NERDTreeToggle','NERDTreeFind']}} "{{{
+        let NERDTreeShowHidden=1
+        let NERDTreeQuitOnOpen=0
+        let NERDTreeShowLineNumbers=1
+        let NERDTreeChDirMode=0
+        let NERDTreeShowBookmarks=1
+        let NERDTreeIgnore=['\.git','\.hg']
+        let NERDTreeBookmarksFile=s:get_cache_dir('NERDTreeBookmarks')
+        nnoremap <F2> :NERDTreeToggle<CR>
+        nnoremap <F3> :NERDTreeFind<CR>
+    "}}}
+
+    " unite
+    NeoBundle 'Shougo/unite.vim' "{{{
+        let bundle = neobundle#get('unite.vim')
+        function! bundle.hooks.on_source(bundle)
+            call unite#filters#matcher_default#use(['matcher_fuzzy'])
+            call unite#filters#sorter_default#use(['sorter_rank'])
+            call unite#custom#source('line,outline','matchers','matcher_fuzzy')
+            call unite#custom#profile('default', 'context', {
+                \ 'start_insert': 1,
+                \ 'direction': 'botright',
+                \ })
+        endfunction
+
+        let g:unite_data_directory=s:get_cache_dir('unite')
+        let g:unite_source_history_yank_enable=1
+        let g:unite_source_rec_max_cache_files=5000
+
+        if executable('ag')
+            let g:unite_source_grep_command='ag'
+            let g:unite_source_grep_default_opts='--nocolor --line-numbers --nogroup -S -C4'
+            let g:unite_source_grep_recursive_opt=''
+        endif
+
+        function! s:unite_settings()
+            nmap <buffer> Q <plug>(unite_exit)
+            nmap <buffer> <esc> <plug>(unite_exit)
+            imap <buffer> <esc> <plug>(unite_exit)
+        endfunction
+        autocmd FileType unite call s:unite_settings()
+
+        nmap <space> [unite]
+        nnoremap [unite] <nop>
+
+        nnoremap <silent> [unite]<space> :<C-u>Unite -toggle -auto-resize -buffer-name=mixed file_rec/async:! buffer file_mru bookmark<cr><c-u>
+        nnoremap <silent> [unite]f :<C-u>Unite -toggle -auto-resize -buffer-name=files file_rec/async:!<cr><c-u>
+        nnoremap <silent> [unite]e :<C-u>Unite -buffer-name=recent file_mru<cr>
+        nnoremap <silent> [unite]y :<C-u>Unite -buffer-name=yanks history/yank<cr>
+        nnoremap <silent> [unite]l :<C-u>Unite -auto-resize -buffer-name=line line<cr>
+        nnoremap <silent> [unite]b :<C-u>Unite -auto-resize -buffer-name=buffers buffer<cr>
+        nnoremap <silent> [unite]/ :<C-u>Unite -no-quit -buffer-name=search grep:.<cr>
+        nnoremap <silent> [unite]m :<C-u>Unite -auto-resize -buffer-name=mappings mapping<cr>
+        nnoremap <silent> [unite]s :<C-u>Unite -quick-match buffer<cr>
+    "}}}
+    NeoBundle 'Shougo/neomru.vim', {'autoload':{'unite_sources':'file_mru'}}
+    NeoBundle 'osyo-manga/unite-airline_themes', {'autoload':{'unite_sources':'airline_themes'}} "{{{
+        nnoremap <silent> [unite]a :<C-u>Unite -winheight=10 -auto-preview -buffer-name=airline_themes airline_themes<cr>
+    "}}}
+    NeoBundle 'ujihisa/unite-colorscheme', {'autoload':{'unite_sources':'colorscheme'}} "{{{
+        nnoremap <silent> [unite]c :<C-u>Unite -winheight=10 -auto-preview -buffer-name=colorschemes colorscheme<cr>
+    "}}}
+    NeoBundle 'tsukkee/unite-tag', {'autoload':{'unite_sources':['tag','tag/file']}} "{{{
+        nnoremap <silent> [unite]t :<C-u>Unite -auto-resize -buffer-name=tag tag tag/file<cr>
+    "}}}
+    NeoBundle 'Shougo/unite-outline', {'autoload':{'unite_sources':'outline'}} "{{{
+        nnoremap <silent> [unite]o :<C-u>Unite -auto-resize -buffer-name=outline outline<cr>
+    "}}}
+    NeoBundle 'Shougo/unite-help', {'autoload':{'unite_sources':'help'}} "{{{
+        nnoremap <silent> [unite]h :<C-u>Unite -auto-resize -buffer-name=help help<cr>
+    "}}}
+    NeoBundle 'Shougo/junkfile.vim', {'autoload':{'commands':'JunkfileOpen','unite_sources':['junkfile','junkfile/new']}} "{{{
+        let g:junkfile#directory=s:get_cache_dir('junk')
+        nnoremap <silent> [unite]j :<C-u>Unite -auto-resize -buffer-name=junk junkfile junkfile/new<cr>
+    "}}}
+
+    " indents
+    NeoBundle 'nathanaelkane/vim-indent-guides' "{{{
+        let g:indent_guides_start_level=1
+        let g:indent_guides_guide_size=1
+        let g:indent_guides_enable_on_vim_startup=0
+        let g:indent_guides_color_change_percent=3
+        if !has('gui_running')
+            let g:indent_guides_auto_colors=0
+            function! s:indent_set_console_colors()
+                hi IndentGuidesOdd ctermbg=235
+                hi IndentGuidesEven ctermbg=236
+            endfunction
+            autocmd VimEnter,Colorscheme * call s:indent_set_console_colors()
+        endif 
+    "}}}  
+
+    " misc
+    if exists('%TMUX')
+        NeoBundle 'christoomey/vim-tmux-navigator'
+    endif
+    NeoBundle 'kana/vim-vspec'
+    NeoBundle 'tpope/vim-scriptease', {'autoload':{'filetypes':['vim']}}
+    NeoBundle 'tpope/vim-markdown', {'autoload':{'filetypes':['markdown']}}
+    if executable('redcarpet') && executable('instant-markdown-d')
+        NeoBundle 'suan/vim-instant-markdown', {'autoload':{'filetypes':['markdown']}}
+    endif
+    NeoBundle 'guns/xterm-color-table.vim', {'autoload':{'commands':'XtermColorTable'}}
+    NeoBundle 'chrisbra/vim_faq'
+    NeoBundle 'vimwiki'
+    NeoBundle 'bufkill.vim'
+    NeoBundle 'mhinz/vim-startify' "{{{
+        let g:startify_session_dir = s:get_cache_dir('sessions')
+        let g:startify_change_to_vcs_root = 1 
+        let g:startify_show_sessions = 1 
+        nnoremap <F1> :Startify<cr>
+    "}}}                           
+    NeoBundle 'scrooloose/syntastic' "{{{
+        let g:syntastic_error_symbol = '✗' 
+        let g:syntastic_style_error_symbol = '✠' 
+        let g:syntastic_warning_symbol = '∆' 
+        let g:syntastic_style_warning_symbol = '≈' 
+    "}}}
+
+    nnoremap <leader>nbu :Unite neobundle/update -vertical -no-start-insert<cr>
+"}}}
+
+" mappings {{{
+    " formatting shortcuts
+    nmap <leader>fef :call Preserve("normal gg=G")<CR>
+    nmap <leader>f$ :call StripTrailingWhitespace()<CR>
+    vmap <leader>s :sort<cr>
+
+    " eval vimscript by line or visual selection
+    nmap <silent> <leader>e :call Source(line('.'), line('.'))<CR>
+    vmap <silent> <leader>e :call Source(line('v'), line('.'))<CR>
+
+    nnoremap <leader>w :w<cr>
+
+    " toggle paste
+    map <F6> :set invpaste<CR>:set paste?<CR>
+
+    " remap arrow keys
+    nnoremap <left> :bprev<CR>
+    nnoremap <right> :bnext<CR>
+    nnoremap <up> :tabnext<CR>
+    nnoremap <down> :tabprev<CR>
+
+    " smash escape
+    inoremap jk <esc>
+    inoremap kj <esc>
+
+    " change cursor position in insert mode
+    inoremap <C-h> <left>
+    inoremap <C-l> <right>
+
+    inoremap <C-u> <C-g>u<C-u>
+
+    if mapcheck('<space>/') == ''
+        nnoremap <space>/ :vimgrep //gj **/*<left><left><left><left><left><left><left><left>
+    endif
+    
+    " sane regex {{{
+        nnoremap / /\v
+        vnoremap / /\v
+        nnoremap ? ?\v
+        vnoremap ? ?\v
+        nnoremap :s/ :s/\v
+    "}}}
+
+    " command-line window {{{
+        nnoremap q: q:i
+        nnoremap q/ q/i
+        nnoremap q? q?i
+    "}}}
+
+    " folds {{{
+        nnoremap zr zr:echo &foldlevel<cr>
+        nnoremap zm zm:echo &foldlevel<cr>
+        nnoremap zR zR:echo &foldlevel<cr>
+        nnoremap zM zM:echo &foldlevel<cr>
+    "}}}
+
+    " screen line scroll
+    nnoremap <silent> j gj
+    nnoremap <silent> k gk
+
+    " auto center {{{
+        nnoremap <silent> n nzz
+        nnoremap <silent> N Nzz
+        nnoremap <silent> * *zz
+        nnoremap <silent> # #zz
+        nnoremap <silent> g* g*zz
+        nnoremap <silent> g# g#zz
+        nnoremap <silent> <C-o> <C-o>zz
+        nnoremap <silent> <C-i> <C-i>zz
+    "}}}
+
+    " reselect visual block after indent
+    vnoremap < <gv
+    vnoremap > >gv
+
+    " reselect last paste
+    nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
+
+    " find current word in quickfix
+    nnoremap <leader>fw :execute "vimgrep ".expand("<cword>")." %"<cr>:copen<cr>
+    " find last search in quickfix
+    nnoremap <leader>ff :execute 'vimgrep /'.@/.'/g %'<cr>:copen<cr>
+
+    " shortcuts for windows {{{
+        nnoremap <leader>v <C-w>v<C-w>l
+        nnoremap <leader>s <C-w>s
+        nnoremap <leader>vsa :vert sba<cr>
+        nnoremap <C-h> <C-w>h
+        nnoremap <C-j> <C-w>j
+        nnoremap <C-k> <C-w>k
+        nnoremap <C-l> <C-w>l
+    "}}}
+
+    " tab shortcuts
+    map <leader>tn :tabnew<CR>
+    map <leader>tc :tabclose<CR>
+
+    " make Y consistent with C and D. See :help Y.
+    nnoremap Y y$
+
+    " hide annoying quit message
+    nnoremap <C-c> <C-c>:echo<cr>
+
+    " window killer
+    nnoremap <silent> Q :call CloseWindowOrKillBuffer()<cr>
+
+    " quick buffer open
+    nnoremap gb :ls<cr>:e #
+
+    if neobundle#is_sourced('vim-dispatch')
+        nnoremap <leader>tag :Dispatch ctags -R<cr>
+    endif
+
+    " general
+    nmap <leader>l :set list! list?<cr>
+    nnoremap <BS> :set hlsearch! hlsearch?<cr>
+
+    map <F8> :set number!<BAr>set number?<CR>
+    map <F7> :set spell!<BAr>set spell?<CR>
+    map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+        \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+        \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
+    " helpers for profiling {{{
+        nnoremap <silent> <leader>DD :exe ":profile start profile.log"<cr>:exe ":profile func *"<cr>:exe ":profile file *"<cr>
+        nnoremap <silent> <leader>DP :exe ":profile pause"<cr>
+        nnoremap <silent> <leader>DC :exe ":profile continue"<cr>
+        nnoremap <silent> <leader>DQ :exe ":profile pause"<cr>:noautocmd qall!<cr>
+  "}}}
+"}}}
+
+" commands {{{
+    command! -bang Q q<bang>
+    command! -bang QA qa<bang>
+    command! -bang Qa qa<bang>
+"}}}
+
+" autocmd {{{
+    " go back to previous position of cursor if any
+    autocmd BufReadPost *
+        \ if line("'\"") > 0 && line("'\"") <= line("$") |
+        \  exe 'normal! g`"zvzz' |
+        \ endif
+
+    autocmd FileType js,scss,css autocmd BufWritePre <buffer> call StripTrailingWhitespace()
+    autocmd FileType css,scss setlocal foldmethod=marker foldmarker={,}
+    autocmd FileType css,scss nnoremap <silent> <leader>S vi{:sort<CR>
+    autocmd FileType python setlocal foldmethod=indent
+    autocmd FileType markdown setlocal nolist
+    autocmd FileType vim setlocal fdm=indent keywordprg=:help
+    autocmd FileType make setlocal noexpandtab tabstop=4 "override tab settings for make files
+                                                         "ie. use real tabs instead of spaces
+"}}}
+
+" color schemes {{{
+    NeoBundle 'altercation/vim-colors-solarized' "{{{
+        set background=dark
+        if has('gui_running')
+            " I like the lower contrast for list characters.  But in a terminal
+            " this makes them completely invisible and causes the cursor to
+            " disappear.
+            let g:solarized_visibility="low" "Specifies contrast of invisibles.
+        endif
+        let g:solarized_termcolors=256
+        let g:solarized_termtrans=1
+        highlight SignColumn guibg=#002b36
+    "}}}
+    NeoBundle 'nanotech/jellybeans.vim'
+    NeoBundle 'tomasr/molokai'
+    NeoBundle 'chriskempson/vim-tomorrow-theme'
+    NeoBundle 'chriskempson/base16-vim'
+    NeoBundle 'w0ng/vim-hybrid'
+    NeoBundle 'sjl/badwolf'
+    NeoBundle 'zeis/vim-kolor' "{{{
+        let g:kolor_underlined=1
+    "}}}
+"}}}
+
+" finish loading {{{
+    call neobundle#end()
+    filetype plugin indent on
+    syntax enable
+    exec 'colorscheme '.s:settings.colorscheme
+
+    NeoBundleCheck
+"}}}
 
 
