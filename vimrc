@@ -1,4 +1,16 @@
 
+" default settings {{{
+    " initialize default settings
+    let s:settings = {}
+    let s:settings.default_indent = 4
+    let s:settings.max_column = 120
+    let s:settings.autocomplete_method = 'neocomplcache'
+    let s:settings.colorscheme = 'solarized'
+    let s:settings.enable_cursorcolumn = 0
+    
+    let s:cache_dir = '~/.vim/.cache'
+"}}}
+
 " setup & neobundle {{{
     set nocompatible
     set all&    "reset everything to their defaults
@@ -51,15 +63,6 @@
             bdelete
         endif
     endfunction "}}}
-"}}}
-
-" default settings {{{
-    " initialize default settings
-    let s:settings = {}
-    let s:settings.default_indent = 4
-    let s:settings.max_column = 120
-    let s:setttins.autocomplete_method = 'neocomplcache'
-    let s:settings.colorscheme = 'solarized'
 "}}}
 
 " base configuration {{{
@@ -377,7 +380,7 @@
         endif
     "}}}
     NeoBundle 'mbbill/undotree', {'autoload':{'commands':'UndotreeToggle'}} "{{{
-        let g:undotree_SplitLocation='botright'
+        let g:undotree_WindowLayout='botright'
         let g:undotree_SetFocusWhenToggle=1
         nnoremap <silent> <F5> :UndotreeToggle<CR>
     "}}}
