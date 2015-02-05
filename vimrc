@@ -7,7 +7,7 @@
     let s:settings.autocomplete_method = 'neocomplcache'
     let s:settings.colorscheme = 'solarized'
     let s:settings.enable_cursorcolumn = 0
-    
+
     let s:cache_dir = '~/.vim/.cache'
 "}}}
 
@@ -228,6 +228,7 @@
 
 " plugin/mapping configuration {{{
     " Core
+    NeoBundle 'matchit.zip'
     NeoBundle 'tpope/vim-surround'
     NeoBundle 'tpope/vim-repeat'
     NeoBundle 'tpope/vim-dispatch'
@@ -528,7 +529,7 @@
         let g:startify_change_to_vcs_root = 1 
         let g:startify_show_sessions = 1 
         nnoremap <F1> :Startify<cr>
-    "}}}                           
+    "}}}
     NeoBundle 'scrooloose/syntastic' "{{{
         let g:syntastic_error_symbol = '✗' 
         let g:syntastic_style_error_symbol = '✠' 
@@ -555,10 +556,11 @@
     map <F6> :set invpaste<CR>:set paste?<CR>
 
     " remap arrow keys
-    nnoremap <left> :bprev<CR>
-    nnoremap <right> :bnext<CR>
-    nnoremap <up> :tabnext<CR>
-    nnoremap <down> :tabprev<CR>
+    nnoremap <C-left> :bprev<CR>
+    nnoremap <C-right> :bnext<CR>
+    nnoremap <C-up> :tabnext<CR>
+    nnoremap <C-down> :tabprev<CR>
+
 
     " smash escape
     inoremap jk <esc>
@@ -573,7 +575,7 @@
     if mapcheck('<space>/') == ''
         nnoremap <space>/ :vimgrep //gj **/*<left><left><left><left><left><left><left><left>
     endif
-    
+
     " sane regex {{{
         nnoremap / /\v
         vnoremap / /\v
@@ -695,14 +697,19 @@
 
 " color schemes {{{
     NeoBundle 'altercation/vim-colors-solarized' "{{{
-        set background=dark
         if has('gui_running')
+            set background=light
+
             " I like the lower contrast for list characters.  But in a terminal
             " this makes them completely invisible and causes the cursor to
             " disappear.
-            let g:solarized_visibility="low" "Specifies contrast of invisibles.
+            let g:solarized_visibility="low"    "Specifies contrast of invisibles.
+        else
+            set background=dark
         endif
-        let g:solarized_termcolors=256
+        if $TERM == 'screen'
+            let g:solarized_termcolors=256      "tell Solarized to use the 256 degraded color mode
+        endif
         let g:solarized_termtrans=1
         highlight SignColumn guibg=#002b36
     "}}}
