@@ -166,9 +166,9 @@
     set lazyredraw
     set laststatus=2
     set noshowmode
-    "set foldenable              "enable folds by default
-    "set foldmethod=syntax       "fold via syntax of files
-    "set foldlevelstart=99       "open all folds by default
+    set foldenable              "enable folds by default
+    set foldmethod=syntax       "fold via syntax of files
+    set foldlevelstart=99       "open all folds by default
     let g:xml_syntax_folding=1  "enable xml folding
 
     set cursorline
