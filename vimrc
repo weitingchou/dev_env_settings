@@ -672,6 +672,10 @@
   "}}}
 "}}}
 
+" powerline settings {{{
+    set rtp+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/vim/
+"}}}
+
 " commands {{{
     command! -bang Q q<bang>
     command! -bang QA qa<bang>
