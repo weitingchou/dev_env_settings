@@ -229,6 +229,14 @@
 " plugin/mapping configuration {{{
     " Core
     NeoBundle 'matchit.zip'
+    NeoBundle 'bling/vim-airline' "{{{
+        let g:airline#extensions#tabline#enabled = 1
+        let g:airline#extensions#tabline#left_sep = ' '
+        let g:airline#extensions#tabline#left_alt_sep = '¦'
+        let g:airline_detect_paste = 1
+        let g:airline_powerline_fonts = 1
+        let g:airline_theme = s:settings.colorscheme
+    "}}}
     NeoBundle 'tpope/vim-surround'
     NeoBundle 'tpope/vim-repeat'
     NeoBundle 'tpope/vim-dispatch'
