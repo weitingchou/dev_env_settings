@@ -471,8 +471,8 @@
         nmap <space> [unite]
         nnoremap [unite] <nop>
 
-        nnoremap <silent> [unite]<space> :<C-u>Unite -toggle -auto-resize -buffer-name=mixed file_rec/async:! buffer file_mru bookmark<cr><c-u>
-        nnoremap <silent> [unite]f :<C-u>Unite -toggle -auto-resize -buffer-name=files file_rec/async:!<cr><c-u>
+        nnoremap <silent> [unite]<space> :<C-u>Unite -toggle -auto-resize -buffer-name=mixed file_rec/async:! buffer file_mru bookmark<cr>
+        nnoremap <silent> [unite]f :<C-u>Unite -toggle -auto-resize -buffer-name=files file_rec/async:!<cr>
         nnoremap <silent> [unite]e :<C-u>Unite -buffer-name=recent file_mru<cr>
         nnoremap <silent> [unite]y :<C-u>Unite -buffer-name=yanks history/yank<cr>
         nnoremap <silent> [unite]l :<C-u>Unite -auto-resize -buffer-name=line line<cr>
@@ -564,10 +564,10 @@
     map <F6> :set invpaste<CR>:set paste?<CR>
 
     " remap arrow keys
-    nnoremap <C-left> :bprev<CR>
-    nnoremap <C-right> :bnext<CR>
-    nnoremap <C-up> :tabnext<CR>
-    nnoremap <C-down> :tabprev<CR>
+    nnoremap <left> :bprev<CR>
+    nnoremap <right> :bnext<CR>
+    nnoremap <up> :tabnext<CR>
+    nnoremap <down> :tabprev<CR>
 
 
     " smash escape
